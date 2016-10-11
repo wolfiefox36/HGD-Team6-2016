@@ -10,6 +10,7 @@ public class CameraZoomControlScript : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		camera = GetComponent<Camera> ();
+		desiredZoomAmount = camera.orthographicSize;
 	}
 	
 	// Update is called once per frame
