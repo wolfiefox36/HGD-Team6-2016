@@ -199,6 +199,10 @@ public class PlayerMovementScript : MonoBehaviour {
 			GetComponent<Rigidbody2D> ().drag = previousDrag;
 			thrustParticleEmitter.rate = 0;
 		}
+		if (trigger.gameObject.layer == LayerMask.NameToLayer ("DragZone")) {
+			var dragZone = trigger.gameObject.GetComponent<DragZoneScript> ();
+			GetComponent<Rigidbody2D> ().drag = dragZone.strength;
+		}
 	}
 
 	void OnTriggerExit2D(Collider2D trigger) {
@@ -209,6 +213,9 @@ public class PlayerMovementScript : MonoBehaviour {
 				previousDrag = GetComponent<Rigidbody2D> ().drag;
 				GetComponent<Rigidbody2D> ().drag = 0f;
 			}
+		}
+		if (trigger.gameObject.layer == LayerMask.NameToLayer ("DragZone")) {
+			GetComponent<Rigidbody2D> ().drag = 0;
 		}
 	}
 }
