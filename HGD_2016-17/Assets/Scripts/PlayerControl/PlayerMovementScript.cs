@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using System;
 using System.Linq;
@@ -10,12 +12,15 @@ public class PlayerMovementScript : MonoBehaviour {
 	public float movementForce = 48f;
     public float maxSpeed = 20f;
 	public float jumpForce = 1400f;
+	public float thrustForce = 10f;
 	public GameObject groundCheck;
 	public List<GravitySphereScript> influencingSpheres;
 	public List<GameObject> touchingJumpableObjects;
 	private GameManagerScript gameManager;
 	private float lastJump = 0f;
 	private float previousDrag;
+	public GameObject thrustParticleSystem;
+	private ParticleSystem.EmissionModule thrustParticleEmitter;
 
     public Dictionary<PickupScript.PickupType, int> pickupDictionary;
 
@@ -35,6 +40,19 @@ public class PlayerMovementScript : MonoBehaviour {
             return influencingSpheres.Any() ? influencingSpheres.First() : null;
         }
     }
+	private int _fuel = 200;
+	public int fuel
+	{
+		get 
+		{
+			return _fuel;
+		}
+		set 
+		{
+			_fuel = value;
+			GameObject.FindWithTag ("FuelText").GetComponent<Text> ().text = "Fuel: " + value;
+		}
+	}
 	#endregion
 
 	void Start () {
@@ -44,6 +62,8 @@ public class PlayerMovementScript : MonoBehaviour {
         pickupDictionary = new Dictionary<PickupScript.PickupType, int> ();
         foreach (PickupScript.PickupType type in Enum.GetValues(typeof(PickupScript.PickupType)))
             pickupDictionary.Add(type, 0);
+		GameObject.FindWithTag ("FuelText").GetComponent<Text> ().text = "Fuel: " + fuel;
+		thrustParticleEmitter = thrustParticleSystem.GetComponent<ParticleSystem> ().emission;
 	}
 
 	void FixedUpdate () {
@@ -53,20 +73,27 @@ public class PlayerMovementScript : MonoBehaviour {
 	}
 
 	private void CheckKeyboardInput() {
-		if (Input.GetKey (KeyCode.A) || Input.GetKey (KeyCode.LeftArrow) || Input.GetKey("a"))
-			MoveLeft ();
+		if (influencingSpheres.Any ()) {
+			if (Input.GetKey (KeyCode.A) || Input.GetKey (KeyCode.LeftArrow) || Input.GetKey ("a"))
+				MoveLeft ();
 		
-		if (Input.GetKey (KeyCode.D) || Input.GetKey (KeyCode.RightArrow))
-			MoveRight ();
+			if (Input.GetKey (KeyCode.D) || Input.GetKey (KeyCode.RightArrow))
+				MoveRight ();
 
-		if (Input.GetKeyDown (KeyCode.Space) || Input.GetKeyDown (KeyCode.UpArrow))
-			Jump ();
+			if (Input.GetKeyDown (KeyCode.Space) || Input.GetKeyDown (KeyCode.UpArrow))
+				Jump ();
+		} else {
+			if (Input.GetKey (KeyCode.Space) || Input.GetKey (KeyCode.UpArrow))
+				Thrust ();
+			else
+				thrustParticleEmitter.rate = 0;
+		}
 
-        if (Input.GetKeyDown(KeyCode.Keypad1))
+		if (Input.GetKeyDown(KeyCode.Keypad1) || Input.GetKeyDown(KeyCode.Alpha1))
             UsePickup(PickupScript.PickupType.INCREASE);
-        if (Input.GetKeyDown(KeyCode.Keypad2))
+		if (Input.GetKeyDown(KeyCode.Keypad2) || Input.GetKeyDown(KeyCode.Alpha2))
             UsePickup(PickupScript.PickupType.DECREASE);
-        if (Input.GetKeyDown(KeyCode.Keypad3))
+		if (Input.GetKeyDown(KeyCode.Keypad3) || Input.GetKeyDown(KeyCode.Alpha3))
             UsePickup(PickupScript.PickupType.REVERSE);
     }
 
@@ -106,6 +133,21 @@ public class PlayerMovementScript : MonoBehaviour {
 			GetComponent<Rigidbody2D> ().AddForce (v2.normalized * jumpForce);
 			lastJump = curTime;
 		}
+	}
+
+	private void Thrust() {
+		if (fuel > 0) {
+			var cam = GameObject.FindWithTag ("MainCamera");
+			float x = Mathf.Sin (cam.transform.eulerAngles.z * Mathf.Deg2Rad) * -1;
+			float y = Mathf.Cos (cam.transform.eulerAngles.z * Mathf.Deg2Rad);
+			Vector3 force = new Vector3 (x, y, 0);
+			GetComponent<Rigidbody2D> ().AddForce (force * thrustForce);
+			fuel--;
+			thrustParticleSystem.transform.rotation = cam.transform.rotation;
+			thrustParticleSystem.transform.Rotate (90, 90, 0);
+			thrustParticleEmitter.rate = 1200;
+		} else
+			thrustParticleEmitter.rate = 0;
 	}
 
     public void CollectPickup(PickupScript pickUp) {
@@ -155,6 +197,7 @@ public class PlayerMovementScript : MonoBehaviour {
 			trigger.gameObject.GetComponent<GravitySphereScript> ().activated = true;
 			influencingSpheres.Add(trigger.gameObject.GetComponent<GravitySphereScript>());
 			GetComponent<Rigidbody2D> ().drag = previousDrag;
+			thrustParticleEmitter.rate = 0;
 		}
 	}
 
