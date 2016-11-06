@@ -31,6 +31,7 @@ public class PickupScript : MonoBehaviour {
     {
         INCREASE,
         DECREASE,
-        REVERSE
+        REVERSE,
+        FUEL
     }
 }

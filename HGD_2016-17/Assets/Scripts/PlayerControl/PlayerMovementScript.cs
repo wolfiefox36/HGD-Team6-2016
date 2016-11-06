@@ -151,6 +151,10 @@ public class PlayerMovementScript : MonoBehaviour {
 	}
 
     public void CollectPickup(PickupScript pickUp) {
+        if (pickUp.type == PickupScript.PickupType.FUEL) {
+            fuel += 100;
+            return;
+        }
         pickupDictionary[pickUp.type] = pickupDictionary[pickUp.type] + 1;
     }
 
