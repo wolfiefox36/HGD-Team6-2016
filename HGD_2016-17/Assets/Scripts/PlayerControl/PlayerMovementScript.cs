@@ -89,11 +89,11 @@ public class PlayerMovementScript : MonoBehaviour {
 				thrustParticleEmitter.rate = 0;
 		}
 
-		if (Input.GetKeyDown(KeyCode.Keypad1) || Input.GetKeyDown(KeyCode.Alpha1))
+        if (Input.GetKeyDown(KeyCode.Keypad1) || Input.GetKeyDown(KeyCode.Alpha1))
             UsePickup(PickupScript.PickupType.INCREASE);
-		if (Input.GetKeyDown(KeyCode.Keypad2) || Input.GetKeyDown(KeyCode.Alpha2))
+        if (Input.GetKeyDown(KeyCode.Keypad2) || Input.GetKeyDown(KeyCode.Alpha2))
             UsePickup(PickupScript.PickupType.DECREASE);
-		if (Input.GetKeyDown(KeyCode.Keypad3) || Input.GetKeyDown(KeyCode.Alpha3))
+        if (Input.GetKeyDown(KeyCode.Keypad3) || Input.GetKeyDown(KeyCode.Alpha3))
             UsePickup(PickupScript.PickupType.REVERSE);
     }
 
@@ -193,9 +193,12 @@ public class PlayerMovementScript : MonoBehaviour {
 	}
 		
 	void OnTriggerEnter2D(Collider2D trigger) {
+        // When the player enters the radius of influence of a gravity sphere, add that
+        // sphere to the collection of influencing spheres
 		if (trigger.gameObject.layer == LayerMask.NameToLayer ("GravitySpheres")) {
 			trigger.gameObject.GetComponent<GravitySphereScript> ().activated = true;
 			influencingSpheres.Add(trigger.gameObject.GetComponent<GravitySphereScript>());
+            // Return the player's drag
 			GetComponent<Rigidbody2D> ().drag = previousDrag;
 			thrustParticleEmitter.rate = 0;
 		}
@@ -206,9 +209,12 @@ public class PlayerMovementScript : MonoBehaviour {
 	}
 
 	void OnTriggerExit2D(Collider2D trigger) {
-		if (trigger.gameObject.layer == LayerMask.NameToLayer ("GravitySpheres")) {
+        // When the player exits the radius of influence of a gravity sphere, remove that
+        // sphere from the collection of influencing spheres
+        if (trigger.gameObject.layer == LayerMask.NameToLayer ("GravitySpheres")) {
 			trigger.gameObject.GetComponent<GravitySphereScript> ().activated = false;
 			influencingSpheres.Remove (trigger.gameObject.GetComponent<GravitySphereScript> ());
+            // If the player is no longer within the radius of influence of any spheres, set its drag to be zero
 			if (!influencingSpheres.Any ()) {
 				previousDrag = GetComponent<Rigidbody2D> ().drag;
 				GetComponent<Rigidbody2D> ().drag = 0f;

@@ -6,6 +6,7 @@ public class MainScreenUIManger : MonoBehaviour {
 
     public Button newGameBtn;
     public Button resumeBtn;
+    public Button levelSelectionBtn;
     public Button optionsBtn;
     public Button exitBtn;
  
@@ -19,6 +20,10 @@ public class MainScreenUIManger : MonoBehaviour {
         resumeBtn.onClick.AddListener(delegate
         {
             Debug.Log("Resume Game Button was pressed");
+        });
+        levelSelectionBtn.onClick.AddListener(delegate
+        {
+            SceneManager.LoadScene("LevelSelectionScreen");
         });
         optionsBtn.onClick.AddListener(delegate
         {
