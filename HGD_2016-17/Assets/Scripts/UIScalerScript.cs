@@ -4,13 +4,16 @@ using System.Collections;
 public class UIScalerScript : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
-        scale.x = Screen.width / originalScreenWidth;
-        scale.y = Screen.height / originalScreenHeight;
-        scale.z = 1;
-        var size = GetComponent<RectTransform>().sizeDelta;
+        var xScale = Screen.width / originalScreenWidth;
+        var yScale = Screen.height / originalScreenHeight;
+        var rectTrans = GetComponent<RectTransform>();
+        var size = rectTrans.sizeDelta;
         float originalWidth = size.x;
         float originalHeight = size.y;
-        GetComponent<RectTransform>().sizeDelta = new Vector2(originalWidth * scale.x, originalHeight * scale.y);
+        float originalX = rectTrans.anchoredPosition.x;
+        float originalY = rectTrans.anchoredPosition.y;
+        rectTrans.sizeDelta = new Vector2(originalWidth * xScale, originalHeight * yScale);
+        rectTrans.anchoredPosition = new Vector2(originalX * xScale, originalY * yScale);
     }
 	
 	// Update is called once per frame
@@ -18,7 +21,6 @@ public class UIScalerScript : MonoBehaviour {
 	
 	}
 
-    private float originalScreenWidth = 1024;
+    private float originalScreenWidth = 1024f;
     private float originalScreenHeight = 768f;
-    private Vector3 scale;
 }
