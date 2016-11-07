@@ -4,7 +4,7 @@ using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-
+using UnityEngine.Audio;
 public class PlayerMovementScript : MonoBehaviour {
 
 	public float movementForce = 48f;
@@ -16,6 +16,7 @@ public class PlayerMovementScript : MonoBehaviour {
 	private GameManagerScript gameManager;
 	private float lastJump = 0f;
 	private float previousDrag;
+    public AudioSource audio;
 
     public Dictionary<PickupScript.PickupType, int> pickupDictionary;
 
@@ -101,7 +102,9 @@ public class PlayerMovementScript : MonoBehaviour {
 		if (curTime - lastJump < 0.1f)
 			return;
 		if (isGrounded) {
-			var sphere = influencingSpheres.Any() ? influencingSpheres.First().gameObject : touchingJumpableObjects.First ();
+            audio.Play();
+
+            var sphere = influencingSpheres.Any() ? influencingSpheres.First().gameObject : touchingJumpableObjects.First ();
 			Vector2 v2 = transform.position - sphere.transform.position;
 			GetComponent<Rigidbody2D> ().AddForce (v2.normalized * jumpForce);
 			lastJump = curTime;
