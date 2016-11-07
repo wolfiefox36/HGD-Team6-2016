@@ -12,6 +12,7 @@ public class GoalScript : MonoBehaviour {
     // Use this for initialization
     void Start () {
         player = GameObject.FindWithTag("Player");
+        uiManager = GameObject.FindWithTag("UIManager");
         uiManagerScript = uiManager.GetComponent<UIManagerScript>();
     }
 	
